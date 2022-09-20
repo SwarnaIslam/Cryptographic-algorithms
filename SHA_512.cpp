@@ -45,7 +45,7 @@ const word k[80] = { 0x428a2f98d728ae22, 0x7137449123ef65cd,
         0x3c9ebe0a15c9bebc, 0x431d67c49c100d4c,
         0x4cc5d4becb3e42b6, 0x597f299cfc657e2a,
         0x5fcb6fab3ad6faec, 0x6c44198c4a475817 };
-string str="informationSecurity";
+string str="A.C. Monza is a professional football club that is based in Monza, Lombardy, Italy. The team plays in the Serie A, the first tier of Italian football, following promotion in the 2021–22 Serie B season. The club was founded in 1912 (first lineup pictured), with its first recorded win on 20 September 1912. On multiple occasions in the 1970s, the club came close to promotion to the Serie A, but were twice declared bankrupt, in 2004 and 2015. Following Silvio Berlusconi's 2018 takeover of the club, Monza was promoted to the Serie B in 2020 after a 19-year absence; no Italian team had played more Serie B seasons (40) without playing in the Serie A. Monza have won the Coppa Italia Serie C a record four times, the Serie C championship four times, and an Anglo-Italian Cup. Monza's colours were initially blue and white but were changed to red and white in 1932; as a result, they are nicknamed i biancorossi ('the white and reds'). They have played home matches at the Stadio Brianteo since 1988.";
 ll blockNumber;
 block bk[1000]={};
 word rotr(word w,ll k){
@@ -82,37 +82,37 @@ word calculateT2(word a, word b, word c){
     return maj.to_ullong()+x.to_ullong();
 }
 void padding(block b[]){
-    ll textSize=str.size()*8,paddingZero=0,n=0;
+    stringstream fixedstream;
+    for (int i = 0;i < str.size(); ++i) {
+        fixedstream << bitset<8>(str[i]);
+    }
+    string binStr;
+    binStr = fixedstream.str();
+    int strLen = binStr.length();
+    int paddingZero;
+    int remainning = binStr.length() % 1024;
+ 
+    if (1024 - remainning >= 128) {
+        paddingZero = 1024 - remainning;
+    }
+    else if (1024 - remainning < 128) {
+        paddingZero = 2048 - remainning;
+    }
+    binStr += "1";
+    for (int y = 0; y < paddingZero - 129; y++) {
+        binStr += "0";
+    }
+    string lengthbits= std::bitset<128>(strLen).to_string();
+    binStr += lengthbits;
 
-    while(896-(textSize+1)+n*1024<0)n++;
-
-    paddingZero=896-(textSize+1)+n*1024;
-    ll finalSize=textSize+1+paddingZero+128;
-    blockNumber=finalSize/1024;
-
-    ll i,j=-1,k=0,a=1024;
-    for(i=0;i<finalSize;){
+    ll n=-1;
+    blockNumber=binStr.length()/1024;
+    for(ll i=0;i<binStr.length();i++){
         if(i%1024==0){
-            j++;
-            b[j].reset();
+            n++;
+            b[n].reset();
         }
-        if(i<textSize){
-            b[j]<<=8;
-            b[j]|=str[k++];
-            i+=8;
-        }
-        else if(i==textSize){
-            b[j]<<=1;
-            b[j]|=1;
-            b[j]<<=(1024-i%1024-1);
-            
-            if(i%1024+1>896){
-                j++;
-                b[j].reset();
-            }
-            b[j]|=textSize;
-            break;
-        }
+        b[n][1023-i%1024]=binStr[i]-48;
     }
 }
 
@@ -147,14 +147,14 @@ int main()
             
         }
         a=(A.to_ullong()+a.to_ullong());
-        c=(B.to_ullong()+b.to_ullong());
-        d=(C.to_ullong()+c.to_ullong());
+        b=(B.to_ullong()+b.to_ullong());
+        c=(C.to_ullong()+c.to_ullong());
         d=(D.to_ullong()+d.to_ullong());
         e=(E.to_ullong()+e.to_ullong());
         f=(F.to_ullong()+f.to_ullong());
         g=(G.to_ullong()+g.to_ullong());
         h=(H.to_ullong()+h.to_ullong());
-        
+        //cerr<<a.to_ullong()<<" "<<b.to_ullong()<<endl;
         A=a,B=b,C=c,D=d,E=e,F=f,G=g,H=h;
     }
     cout<<hex<<a.to_ullong()<<b.to_ullong()<<c.to_ullong()<<d.to_ullong()<<e.to_ullong()<<f.to_ullong()<<g.to_ullong()<<h.to_ullong()<<endl;
